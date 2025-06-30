@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.TbWarehouseMapper">
+    
+    <resultMap type="TbWarehouse" id="TbWarehouseResult">
+        <result property="warehouseId"    column="warehouse_id"    />
+        <result property="warehouseName"    column="warehouse_name"    />
+        <result property="location"    column="location"    />
+        <result property="manager"    column="manager"    />
+    </resultMap>
+
+    <sql id="selectTbWarehouseVo">
+        select warehouse_id, warehouse_name, location, manager from tb_warehouse
+    </sql>
+
+    <select id="selectTbWarehouseList" parameterType="TbWarehouse" resultMap="TbWarehouseResult">
+        <include refid="selectTbWarehouseVo"/>
+        <where>  
+            <if test="warehouseId != null "> and warehouse_id = #{warehouseId}</if>
+            <if test="warehouseName != null  and warehouseName != ''"> and warehouse_name like concat('%', #{warehouseName}, '%')</if>
+            <if test="location != null  and location != ''"> and location = #{location}</if>
+            <if test="manager != null  and manager != ''"> and manager = #{manager}</if>
+        </where>
+    </select>
+    
+    <select id="selectTbWarehouseByWarehouseId" parameterType="Long" resultMap="TbWarehouseResult">
+        <include refid="selectTbWarehouseVo"/>
+        where warehouse_id = #{warehouseId}
+    </select>
+
+    <insert id="insertTbWarehouse" parameterType="TbWarehouse" useGeneratedKeys="true" keyProperty="warehouseId">
+        insert into tb_warehouse
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="warehouseName != null and warehouseName != ''">warehouse_name,</if>
+            <if test="location != null">location,</if>
+            <if test="manager != null">manager,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="warehouseName != null and warehouseName != ''">#{warehouseName},</if>
+            <if test="location != null">#{location},</if>
+            <if test="manager != null">#{manager},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTbWarehouse" parameterType="TbWarehouse">
+        update tb_warehouse
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="warehouseName != null and warehouseName != ''">warehouse_name = #{warehouseName},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="manager != null">manager = #{manager},</if>
+        </trim>
+        where warehouse_id = #{warehouseId}
+    </update>
+
+    <delete id="deleteTbWarehouseByWarehouseId" parameterType="Long">
+        delete from tb_warehouse where warehouse_id = #{warehouseId}
+    </delete>
+
+    <delete id="deleteTbWarehouseByWarehouseIds" parameterType="String">
+        delete from tb_warehouse where warehouse_id in 
+        <foreach item="warehouseId" collection="array" open="(" separator="," close=")">
+            #{warehouseId}
+        </foreach>
+    </delete>
+</mapper>

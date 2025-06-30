@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.VwCategoryinventoryMapper">
+    
+    <resultMap type="VwCategoryinventory" id="VwCategoryinventoryResult">
+        <result property="categoryId"    column="category_id"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="totalInventory"    column="total_inventory"    />
+    </resultMap>
+
+    <sql id="selectVwCategoryinventoryVo">
+        select category_id, category_name, total_inventory from vw_categoryinventory
+    </sql>
+
+    <select id="selectVwCategoryinventoryList" parameterType="VwCategoryinventory" resultMap="VwCategoryinventoryResult">
+        <include refid="selectVwCategoryinventoryVo"/>
+        <where>  
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectVwCategoryinventoryByCategoryId" parameterType="Long" resultMap="VwCategoryinventoryResult">
+        <include refid="selectVwCategoryinventoryVo"/>
+        where category_id = #{categoryId}
+    </select>
+
+    <insert id="insertVwCategoryinventory" parameterType="VwCategoryinventory">
+        insert into vw_categoryinventory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="categoryName != null and categoryName != ''">category_name,</if>
+            <if test="totalInventory != null">total_inventory,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="categoryName != null and categoryName != ''">#{categoryName},</if>
+            <if test="totalInventory != null">#{totalInventory},</if>
+         </trim>
+    </insert>
+
+    <update id="updateVwCategoryinventory" parameterType="VwCategoryinventory">
+        update vw_categoryinventory
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="totalInventory != null">total_inventory = #{totalInventory},</if>
+        </trim>
+        where category_id = #{categoryId}
+    </update>
+
+    <delete id="deleteVwCategoryinventoryByCategoryId" parameterType="Long">
+        delete from vw_categoryinventory where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteVwCategoryinventoryByCategoryIds" parameterType="String">
+        delete from vw_categoryinventory where category_id in 
+        <foreach item="categoryId" collection="array" open="(" separator="," close=")">
+            #{categoryId}
+        </foreach>
+    </delete>
+</mapper>

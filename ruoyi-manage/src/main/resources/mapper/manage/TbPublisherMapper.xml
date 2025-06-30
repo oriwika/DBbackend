@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.TbPublisherMapper">
+    
+    <resultMap type="TbPublisher" id="TbPublisherResult">
+        <result property="publisherId"    column="publisher_id"    />
+        <result property="publisherName"    column="publisher_name"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="address"    column="address"    />
+    </resultMap>
+
+    <sql id="selectTbPublisherVo">
+        select publisher_id, publisher_name, contact_phone, address from tb_publisher
+    </sql>
+
+    <select id="selectTbPublisherList" parameterType="TbPublisher" resultMap="TbPublisherResult">
+        <include refid="selectTbPublisherVo"/>
+        <where>  
+            <if test="publisherName != null  and publisherName != ''"> and publisher_name like concat('%', #{publisherName}, '%')</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone like concat('%', #{contactPhone}, '%')</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+        </where>
+    </select>
+    
+    <select id="selectTbPublisherByPublisherId" parameterType="Long" resultMap="TbPublisherResult">
+        <include refid="selectTbPublisherVo"/>
+        where publisher_id = #{publisherId}
+    </select>
+
+    <insert id="insertTbPublisher" parameterType="TbPublisher" useGeneratedKeys="true" keyProperty="publisherId">
+        insert into tb_publisher
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="publisherName != null and publisherName != ''">publisher_name,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="address != null">address,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="publisherName != null and publisherName != ''">#{publisherName},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="address != null">#{address},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTbPublisher" parameterType="TbPublisher">
+        update tb_publisher
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="publisherName != null and publisherName != ''">publisher_name = #{publisherName},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="address != null">address = #{address},</if>
+        </trim>
+        where publisher_id = #{publisherId}
+    </update>
+
+    <delete id="deleteTbPublisherByPublisherId" parameterType="Long">
+        delete from tb_publisher where publisher_id = #{publisherId}
+    </delete>
+
+    <delete id="deleteTbPublisherByPublisherIds" parameterType="String">
+        delete from tb_publisher where publisher_id in 
+        <foreach item="publisherId" collection="array" open="(" separator="," close=")">
+            #{publisherId}
+        </foreach>
+    </delete>
+</mapper>
