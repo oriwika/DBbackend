@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.BookInventoryStatsMapper">
+    <resultMap type="BookInventoryStats" id="BookInventoryStatsResult">
+        <result property="bookId" column="book_id" />
+        <result property="title" column="title" />
+        <result property="author" column="author" />
+        <result property="totalPurchased" column="total_purchased" />
+        <result property="totalSold" column="total_sold" />
+    </resultMap>
+
+    <select id="getBookInventoryStats" resultMap="BookInventoryStatsResult" statementType="CALLABLE">
+        {call sp_GetBookInventoryStats(#{param1,jdbcType=TIMESTAMP}, #{param2,jdbcType=TIMESTAMP})}
+    </select>
+</mapper>

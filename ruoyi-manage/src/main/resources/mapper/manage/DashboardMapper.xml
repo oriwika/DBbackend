@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.DashboardMapper">
+    
+    <!-- 获取图书总数 -->
+    <select id="getTotalBooks" resultType="int">
+        SELECT COUNT(*) FROM tb_book
+    </select>
+    
+    <!-- 获取库存总量 -->
+    <select id="getTotalInventory" resultType="int">
+        SELECT COALESCE(SUM(total_stock), 0) FROM tb_book
+    </select>
+    
+    <!-- 获取今日销售额 -->
+    <select id="getTodaySales" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(b.retail_price * sd.quantity), 0)
+        FROM tb_sales_order so
+        JOIN tb_sales_detail sd ON so.order_id = sd.order_id
+        JOIN tb_book b ON sd.book_id = b.book_id
+        WHERE DATE(so.order_date) = CURDATE()
+    </select>
+    
+    <!-- 获取库存预警图书数量 -->
+    <select id="getLowStockBooksCount" resultType="int">
+        SELECT COUNT(*) 
+        FROM tb_book 
+        WHERE total_stock &lt; #{threshold}
+    </select>
+    
+    <!-- 获取出版社数量 -->
+    <select id="getPublishersCount" resultType="int">
+        SELECT COUNT(*) FROM tb_publisher
+    </select>
+    
+    <!-- 获取图书类别数量 -->
+    <select id="getCategoriesCount" resultType="int">
+        SELECT COUNT(*) FROM tb_book_category
+    </select>
+    
+    <!-- 获取仓库数量 -->
+    <select id="getWarehousesCount" resultType="int">
+        SELECT COUNT(*) FROM tb_warehouse
+    </select>
+    
+    <!-- 获取本月进货订单数 -->
+    <select id="getMonthlyPurchaseOrders" resultType="int">
+        SELECT COUNT(*) 
+        FROM tb_purchase_order 
+        WHERE YEAR(order_date) = YEAR(CURDATE()) 
+        AND MONTH(order_date) = MONTH(CURDATE())
+    </select>
+    
+    <!-- 获取本月销售订单数 -->
+    <select id="getMonthlySalesOrders" resultType="int">
+        SELECT COUNT(*) 
+        FROM tb_sales_order 
+        WHERE YEAR(order_date) = YEAR(CURDATE()) 
+        AND MONTH(order_date) = MONTH(CURDATE())
+    </select>
+    
+    <!-- 获取热销图书列表 -->
+    <select id="getHotBooks" resultType="map">
+        SELECT 
+            b.title,
+            b.author,
+            COALESCE(SUM(sd.quantity), 0) as sales
+        FROM tb_book b
+        LEFT JOIN tb_sales_detail sd ON b.book_id = sd.book_id
+        LEFT JOIN tb_sales_order so ON sd.order_id = so.order_id
+        WHERE so.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+           OR so.order_date IS NULL
+        GROUP BY b.book_id, b.title, b.author
+        ORDER BY sales DESC
+        LIMIT #{limit}
+    </select>
+    
+    <!-- 获取库存预警列表 -->
+    <select id="getLowStockList" resultType="map">
+        SELECT 
+            title,
+            total_stock as stock
+        FROM tb_book 
+        WHERE total_stock &lt; #{threshold}
+        ORDER BY total_stock ASC
+        LIMIT 10
+    </select>
+    
+</mapper>
