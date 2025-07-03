@@ -131,6 +131,12 @@ BEGIN
     SET quantity = quantity - NEW.quantity 
     WHERE book_id = NEW.book_id 
       AND warehouse_id = NEW.warehouse_id;
+    
+    -- 如果库存清零，删除该条记录
+    DELETE FROM tb_inventory 
+    WHERE book_id = NEW.book_id 
+      AND warehouse_id = NEW.warehouse_id 
+      AND quantity = 0;
 END //
 DELIMITER ;
 
